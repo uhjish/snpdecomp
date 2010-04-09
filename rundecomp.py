@@ -18,7 +18,7 @@ except Exception:
 
 print "Filename: " + filename + "\nProject: " + projectname
 
-mat = NamedMatrix.readfromfile(filename,nullvalue="-1")
+mat = NamedMatrix.readfromfile(filename,nullvalue="-1",header=True, rownames=True,separator='\t',skip=0)
 
 NamedMatrixHDF5.writeNamedMatrix(mat, projectname, "/freqs",overwrite=True)
 
@@ -44,7 +44,14 @@ r('''
             }
             cols = which(is.finite(submat[1,]))
             submat = submat[,cols]
-            return(prcomp(t(submat)))
+            pcs = prcomp(t(submat))
+            pctile = apply(pcs$rotation,2,function(x){rank(abs(x),ties.method="first")})/length(subs)
+            scaled = t(apply(pctile,1,function(x){x*pcs$sdev}))
+            sdevscore = apply(pcs$rotation,1,sd)
+            pcs[["rankscore"]]=scaled
+            pcs[["sdevscore"]]=sdevscore
+            pcs[["rownums"]]=subs
+            return(pcs)
         }
 
         ''')
@@ -66,67 +73,15 @@ for i,s in enumerate(unq_subs):
         shndl=hndl[s]
         shndl.create_dataset("sdev",data=pca[0])
         shndl.create_dataset("loadings",data=pca[1])
+        shndl.create_dataset("center",data=pca[2])
+        shndl.create_dataset("scale",data=pca[3])
         shndl.create_dataset("components",data=pca[4])
+        shndl.create_dataset("rankscore",data=pca[5])
+        shndl.create_dataset("sdevscore",data=pca[6])
+        shndl.create_dataset("rownums",data=pca[7])
     except:
         print pca
         print s
 
 
 h5.close()
-
-#blah = matdecomp.apply_over_subsets(snp.runPCA,"/freqs/test",True)
-#mat = NamedMatrix.readfromfile(filename,separator="\t",header=True,rownames=True,nullvalue="-1")
-
-
-## To test creat HDF5 files
-#indir =  '/Users/krokodil/samples/mSeq_cors/m/txt'
-#outdir = '/Users/krokodil/samples/mSeq_cors/m/hdf5'
-#wf.allToHDF5(indir, outdir)
-
-#### To test by Row
-#base1 = 'mirna_shift_filt'
-#searchstring1='hcmv-miR-US4'
-#base2 = 'gene_qnorm_all'
-#searchstring = 'A_23_P87351'
-#dirin='/Users/krokodil/samples/mSeq_cors/m/hdf5'
-#dirout='/Users/krokodil/samples/mSeq_cors/m/hdf5'
-#rc.cor_by_row_matrix(dirin, dirout, base2, searchstring,  method='spearman')
-
-#results = rc.cor_by_row_R(dirin, dirout, base1, searchstring1, method='spearman')
-#print(results)
-#rc.cor_by_row_between_datasets_R(dirin, dirout, base1, base2, searchstring)
-
-
-###### To test by Col
-#base = 'mirna_shift_filt'
-#searchstring='MICMA015T'
-
-base = 'gene_qnorm_all'
-searchstring = 'MICMA015T'
-
-#dirin='/Users/krokodil/samples/mSeq_cors/m/hdf5'
-#dirout='/Users/krokodil/samples/mSeq_cors/m/hdf5'
-#
-#cc.cor_by_col_R(dirin,dirout, base, searchstring, method='spearman')
-
-
-## To test creat HDF5 files
-#indir =  '/home/vlad/Util/website/gtest/cor/txt'
-#outdir = '/home/vlad/Util/website/gtest/cor/hdf5'
-#wf.allToHDF5(indir, outdir)
-
-#### To test by Row
-base1 = 'mirna_shift_filt'
-searchstring='hcmv-miR-US4'
-base2 = 'gene_qnorm_all'
-#searchstring = 'A_23_P87351'
-dirin='/home/vlad/Util/website/gtest/cor/hdf5'
-dirout='/home/vlad/Util/website/gtest/cor/out'
-#rc.cor_by_row_R(dirin, dirout, base2, searchstring, method='spearman')
-
-
-
-##### To test in R
-# m2<-read.table(file='/Users/krokodil/samples/mSeq_cors/m/gene_qnorm_all.tsz', header=TRUE, sep='\t')
-# m1<-read.table(file='/Users/krokodil/samples/mSeq_cors/m/mirna_shift_filt.tsv', header=TRUE, sep='\t')
-

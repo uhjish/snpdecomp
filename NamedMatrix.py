@@ -36,6 +36,7 @@ def readfromfile(filename, separator='\t', header=True, rownames=True, comment='
             fields = line.strip().split(separator)
             if header and lnum == skip+1:
                 cnames = fields[1:]
+                print str(cnames)
                 continue
             if rownames:
                 rnames.append(fields[0])

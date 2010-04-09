@@ -1,0 +1,18 @@
+$contenttype
+<html>
+<head>
+<title>$title</title>
+</head>
+<body>
+<h3>show scores for SNPs:</h3> 
+<form>
+<select name=scorechooser>
+#for $scoreName in $availScores
+<option value=$scoreName>$scoreName</option>
+#end for
+<input type=hidden name=page value=snpscores>
+<input type=submit action=decomp.py name=sub value="Show Scores">
+</select>
+</form>
+</body>
+</html>
