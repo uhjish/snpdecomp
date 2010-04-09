@@ -5,14 +5,18 @@ $contenttype
 </head>
 <body>
 <h3>show scores for SNPs:</h3> 
-<form>
+<form name=decomp>
+<input type=hidden name=page value=index>
 <select name=scorechooser>
 #for $scoreName in $availScores
 <option value=$scoreName>$scoreName</option>
 #end for
-<input type=hidden name=page value=snpscores>
-<input type=submit action=decomp.py name=sub value="Show Scores">
 </select>
+<input type=submit action=decomp.py name=sub value="Show Scores">
+<h3>search for SNP:</h3> 
+rsid: 
+<input type=text name=rsid>
+<input type=submit action=decomp.py name=sub value="Search" onClick="document.decomp.page.value='snpdetail';">
 </form>
 </body>
 </html>
